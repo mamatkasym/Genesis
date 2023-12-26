@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    container_name: genesis-api
+    restart: always
+    volumes:
+      - /var/www/media:/media
+      - /var/www/static:/static
+    depends_on:
+      - db
+    env_file:
+      - .env
+    expose:
+      - "8000"
+
+  db:
+    image: postgres:16-bullseye
+    container_name: genesis-db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  nginx:
+    restart: always
+    build: ./nginx/
+    container_name: genesis-nginx
+    volumes:
+      - /var/www/media:/media
+      - /var/www/static:/static
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  web_static: {}
+  postgres_data: {}

@@ -1,0 +1,37 @@
+# Base stage
+
+# pull official base image
+FROM python:3.11.4-slim-bullseye AS base
+
+# set work directory
+WORKDIR /usr/src/app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED=1
+
+# install system dependencies
+#RUN apt-get update && \
+#    apt-get install -y --no-install-recommends gcc
+
+RUN pip install poetry
+
+
+# Build stage
+FROM base AS build
+
+
+COPY poetry.lock pyproject.toml /
+
+# install python dependencies for project
+RUN poetry config virtualenvs.create false && poetry install --no-root --no-interaction --no-ansi --without dev
+
+
+COPY ./startup.sh /usr/src/app/startup
+RUN sed -i 's/\r$//g' /usr/src/app/startup
+
+RUN chmod +x /usr/src/app/startup
+
+COPY . .
+
+ENTRYPOINT ["/usr/src/app/startup"]

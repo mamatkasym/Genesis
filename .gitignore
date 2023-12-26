@@ -1,0 +1,8 @@
+.idea
+__/pycache/__
+*.py[cod]
+data
+.env
+*.pytest_cache
+*/static/
+*/media/
